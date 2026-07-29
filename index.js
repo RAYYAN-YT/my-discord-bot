@@ -22,16 +22,17 @@ client.on('messageCreate', message => {
     message.reply('🏓 Pong!');
   }
 
-  // Auto replies
+  // Hello responder
   if (message.content.toLowerCase() === 'hello') {
     message.reply('Hey! 👋 Welcome!');
   }
 
+  // Rules responder
   if (message.content.toLowerCase() === 'rules') {
     message.reply('📜 Please check the rules channel!');
   }
 
-  // Team Apply
+  // Team Apply responder
   if (message.content.toLowerCase() === 'apply') {
     message.channel.send(
 `**Team Apply**
