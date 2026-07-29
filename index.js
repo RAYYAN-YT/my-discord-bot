@@ -14,28 +14,19 @@ client.once('ready', () => {
   console.log(`${client.user.tag} is online!`);
 });
 
-client.on('messageCreate', message => {
+client.on('messageCreate', message => { 
   if (message.author.bot) return;
 
-  // Ping command
-  if (message.content === '!ping') {
+  const msg = message.content.toLowerCase().trim();
+
+  const msg = message.content.toLowerCase().trim();
+
+  if (msg === '!ping') {
     message.reply('🏓 Pong!');
   }
 
-  // Hello responder
-  if (message.content.toLowerCase() === 'hello') {
-    message.reply('Hey! 👋 Welcome!');
-  }
-
-  // Rules responder
-  if (message.content.toLowerCase() === 'rules') {
-    message.reply('📜 Please check the rules channel!');
-  }
-
-  // Team Apply responder
-  if (message.content.toLowerCase() === 'apply') {
-    message.channel.send(
-`**Team Apply**
+  if (msg === 'apply') {
+    message.channel.send(`**Team Apply**
 
 Answer the following questions:
 
@@ -46,9 +37,9 @@ Answer the following questions:
 5. Your Tier? (If Sword)
 6. Are you familiar with team community?
 7. Your previous Team?
-8. Why should we accept your Team Apply? How are you better than others?`
-    );
+8. Why should we accept your Team Apply? How are you better than others?`);
   }
 });
 
 client.login(process.env.TOKEN);
+
