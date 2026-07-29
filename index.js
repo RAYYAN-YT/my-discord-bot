@@ -14,17 +14,27 @@ client.once('ready', () => {
   console.log(`${client.user.tag} is online!`);
 });
 
-client.on('messageCreate', message => { 
+client.on('messageCreate', message => {
   if (message.author.bot) return;
 
   const msg = message.content.toLowerCase().trim();
 
-  const msg = message.content.toLowerCase().trim();
-
+  // Ping
   if (msg === '!ping') {
     message.reply('🏓 Pong!');
   }
 
+  // Hello
+  if (msg === 'hello') {
+    message.reply('Hey! 👋 Welcome!');
+  }
+
+  // Rules
+  if (msg === 'rules') {
+    message.reply('📜 Please check the rules channel!');
+  }
+
+  // Team Apply
   if (msg === 'apply') {
     message.channel.send(`**Team Apply**
 
@@ -42,4 +52,3 @@ Answer the following questions:
 });
 
 client.login(process.env.TOKEN);
-
