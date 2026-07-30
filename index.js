@@ -1,7 +1,19 @@
 require('dotenv').config();
 
-const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
-const { joinVoiceChannel } = require('@discordjs/voice');
+const { 
+  Client, 
+  GatewayIntentBits, 
+  EmbedBuilder 
+} = require('discord.js');
+
+const { 
+  joinVoiceChannel,
+  createAudioPlayer,
+  createAudioResource
+} = require('@discordjs/voice');
+
+const play = require('play-dl');
+
 
 const client = new Client({
   intents: [
@@ -13,34 +25,47 @@ const client = new Client({
   ]
 });
 
+
 client.once('clientReady', () => {
   console.log(`${client.user.tag} is online!`);
 });
 
+
 client.on('messageCreate', async (message) => {
+
   if (message.author.bot) return;
 
   const msg = message.content.toLowerCase().trim();
 
+
+  // Ping
   if (msg === '!ping') {
     return message.reply('🏓 Pong!');
   }
 
+
+  // Hello
   if (msg === 'hello') {
     return message.reply('Hey! 👋 Welcome!');
   }
 
+
+  // Rules
   if (msg === 'rules') {
     return message.reply('📜 Please check the rules channel!');
   }
 
-if (msg === 'apply') {
+
+  // Apply Embed
+  if (msg === 'apply') {
 
     const embed = new EmbedBuilder()
       .setColor('#FFFFFF')
       .setTitle('Team Apply')
       .setDescription('Answer the following questions:')
-      .setThumbnail('https://cdn.discordapp.com/icons/1508771055551123547/5d2e04fac0200b6878b605986f56e447.webp')
+      .setThumbnail(
+        'https://cdn.discordapp.com/icons/1508771055551123547/5d2e04fac0200b6878b605986f56e447.webp'
+      )
       .addFields(
         { name: '1. IGN', value: "What's your IGN?" },
         { name: '2. Account', value: 'Cracked / Premium?' },
@@ -56,25 +81,143 @@ if (msg === 'apply') {
       })
       .setTimestamp();
 
-    return message.reply({ embeds: [embed] });
-}
 
-  if (msg === '!join') {
+    return message.reply({
+      embeds: [embed]
+    });
+  }
+
+
+
+  // Play Music
+  if (msg.startsWith('!play')) {
+
     const voiceChannel = message.member?.voice?.channel;
 
+
     if (!voiceChannel) {
-      return message.reply('❌ Please join a voice channel first.');
+      return message.reply('❌ Join a voice channel first.');
     }
 
+
+    const song = message.content.substring(6);
+
+
+    if (!song) {
+      return message.reply('❌ Enter a song name.');
+    }
+
+
+    try {
+
+      const connection = joinVoiceChannel({
+
+        channelId: voiceChannel.id,
+
+        guildId: message.guild.id,
+
+        adapterCreator: message.guild.voiceAdapterCreator,
+
+      });
+
+
+
+      const result = await play.search(song, {
+        limit: 1
+      });
+
+
+      if (!result.length) {
+        return message.reply('❌ Song not found.');
+      }
+
+
+
+      const stream = await play.stream(result[0].url);
+
+
+
+      const player = createAudioPlayer();
+
+
+      player.on('error', error => {
+        console.log('Audio Error:', error);
+      });
+
+
+
+      const resource = createAudioResource(
+        stream.stream,
+        {
+          inputType: stream.type
+        }
+      );
+
+
+
+      player.play(resource);
+
+      connection.subscribe(player);
+
+
+
+      return message.reply(
+        `🎵 Playing: **${result[0].title}**`
+      );
+
+
+    } catch (error) {
+
+      console.log(error);
+
+      return message.reply(
+        '❌ Music error happened.'
+      );
+
+    }
+
+  }
+
+
+
+
+  // Join VC
+  if (msg === '!join') {
+
+
+    const voiceChannel = message.member?.voice?.channel;
+
+
+    if (!voiceChannel) {
+
+      return message.reply(
+        '❌ Please join a voice channel first.'
+      );
+
+    }
+
+
     joinVoiceChannel({
+
       channelId: voiceChannel.id,
+
       guildId: message.guild.id,
+
       adapterCreator: message.guild.voiceAdapterCreator,
+
     });
 
-    return message.reply('✅ Joined your voice channel!');
+
+    return message.reply(
+      '✅ Joined your voice channel!'
+    );
+
   }
+
 });
-console.log("VERSION 5");
+
+
+console.log("VERSION 7");
+
 
 client.login(process.env.TOKEN);
