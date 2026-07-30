@@ -1,12 +1,12 @@
 require('dotenv').config();
 
-const { 
-  Client, 
-  GatewayIntentBits, 
-  EmbedBuilder 
+const {
+  Client,
+  GatewayIntentBits,
+  EmbedBuilder
 } = require('discord.js');
 
-const { 
+const {
   joinVoiceChannel,
   createAudioPlayer,
   createAudioResource
@@ -102,7 +102,7 @@ client.on('messageCreate', async (message) => {
     }
 
 
-    const song = message.content.substring(6);
+    const song = message.content.substring(6).trim();
 
 
     if (!song) {
@@ -113,13 +113,9 @@ client.on('messageCreate', async (message) => {
     try {
 
       const connection = joinVoiceChannel({
-
         channelId: voiceChannel.id,
-
         guildId: message.guild.id,
-
         adapterCreator: message.guild.voiceAdapterCreator,
-
       });
 
 
@@ -156,11 +152,9 @@ client.on('messageCreate', async (message) => {
       );
 
 
-
       player.play(resource);
 
       connection.subscribe(player);
-
 
 
       return message.reply(
@@ -170,10 +164,11 @@ client.on('messageCreate', async (message) => {
 
     } catch (error) {
 
+      console.log("MUSIC ERROR:");
       console.log(error);
 
       return message.reply(
-        '❌ Music error happened.'
+        '❌ Music error happened. Check logs.'
       );
 
     }
@@ -182,20 +177,16 @@ client.on('messageCreate', async (message) => {
 
 
 
-
   // Join VC
   if (msg === '!join') {
-
 
     const voiceChannel = message.member?.voice?.channel;
 
 
     if (!voiceChannel) {
-
       return message.reply(
         '❌ Please join a voice channel first.'
       );
-
     }
 
 
