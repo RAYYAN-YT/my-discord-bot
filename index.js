@@ -63,5 +63,6 @@ client.on('messageCreate', async (message) => {
     return message.reply('✅ Joined your voice channel!');
   }
 });
+console.log("VERSION 5");
 
 client.login(process.env.TOKEN);
