@@ -12,7 +12,7 @@ const {
   createAudioResource
 } = require('@discordjs/voice');
 
-const play = require('play-dl');
+const { Innertube } = require('youtubei.js');
 
 
 const client = new Client({
@@ -40,10 +40,12 @@ client.on('messageCreate', async (message) => {
   const msg = message.content.toLowerCase().trim();
 
 
+
   // Ping
   if (msg === '!ping') {
     return message.reply('🏓 Pong!');
   }
+
 
 
   // Hello
@@ -52,22 +54,29 @@ client.on('messageCreate', async (message) => {
   }
 
 
+
   // Rules
   if (msg === 'rules') {
     return message.reply('📜 Please check the rules channel!');
   }
 
 
+
   // Apply Embed
   if (msg === 'apply') {
 
     const embed = new EmbedBuilder()
+
       .setColor('#FFFFFF')
+
       .setTitle('Team Apply')
+
       .setDescription('Answer the following questions:')
+
       .setThumbnail(
         'https://cdn.discordapp.com/icons/1508771055551123547/5d2e04fac0200b6878b605986f56e447.webp'
       )
+
       .addFields(
         { name: '1. IGN', value: "What's your IGN?" },
         { name: '2. Account', value: 'Cracked / Premium?' },
@@ -78,98 +87,142 @@ client.on('messageCreate', async (message) => {
         { name: '7. Previous Team', value: 'Your previous Team?' },
         { name: '8. Why You?', value: 'Why should we accept your Team Apply? How are you better than others?' }
       )
+
       .setFooter({
         text: 'Good luck with your application!'
       })
+
       .setTimestamp();
 
 
     return message.reply({
       embeds: [embed]
     });
+
   }
+
+
 
 
 
   // Play Music
   if (msg.startsWith('!play')) {
 
+
     const voiceChannel = message.member?.voice?.channel;
 
 
     if (!voiceChannel) {
-      return message.reply('❌ Join a voice channel first.');
+      return message.reply(
+        '❌ Join a voice channel first.'
+      );
     }
 
 
-    const song = message.content.substring(6).trim();
+
+    const song = message.content
+      .substring(5)
+      .trim();
+
 
 
     if (!song) {
-      return message.reply('❌ Enter a song name.');
+      return message.reply(
+        '❌ Enter a song name.'
+      );
     }
+
 
 
     try {
 
-      const connection = joinVoiceChannel({
-        channelId: voiceChannel.id,
-        guildId: message.guild.id,
-        adapterCreator: message.guild.voiceAdapterCreator,
-      });
+
+      const yt = await Innertube.create();
 
 
 
-      const result = await play.search(song, {
-        limit: 1
-      });
+      const search = await yt.search(song);
 
 
-      if (!result.length) {
-        return message.reply('❌ Song not found.');
+
+      const video = search.results.find(
+        item => item.type === 'Video'
+      );
+
+
+
+      if (!video) {
+
+        return message.reply(
+          '❌ Song not found.'
+        );
+
       }
 
 
 
-      const stream = await play.stream(result[0].url);
+      const connection = joinVoiceChannel({
+
+        channelId: voiceChannel.id,
+
+        guildId: message.guild.id,
+
+        adapterCreator: message.guild.voiceAdapterCreator
+
+      });
 
 
 
       const player = createAudioPlayer();
 
 
-      player.on('error', error => {
-        console.log('Audio Error:', error);
-      });
+
+      const stream = await yt.download(
+
+        video.id,
+
+        {
+          type: 'audio',
+          quality: 'best'
+        }
+
+      );
 
 
 
       const resource = createAudioResource(
-        stream.stream,
-        {
-          inputType: stream.type
-        }
+        stream
       );
+
 
 
       player.play(resource);
 
+
+
       connection.subscribe(player);
 
 
+
       return message.reply(
-        `🎵 Playing: **${result[0].title}**`
+        `🎵 Playing: **${video.title.text}**`
       );
+
 
 
     } catch (error) {
 
-      console.log("MUSIC ERROR:");
+
+      console.log("YOUTUBE ERROR:");
+
       console.log(error);
 
+
+
       return message.reply(
-        '❌ Music error happened. Check logs.'
+        '❌ Music failed. Check logs.'
       );
+
 
     }
 
@@ -177,17 +230,25 @@ client.on('messageCreate', async (message) => {
 
 
 
+
+
+
   // Join VC
   if (msg === '!join') {
+
 
     const voiceChannel = message.member?.voice?.channel;
 
 
+
     if (!voiceChannel) {
+
       return message.reply(
         '❌ Please join a voice channel first.'
       );
+
     }
+
 
 
     joinVoiceChannel({
@@ -196,21 +257,25 @@ client.on('messageCreate', async (message) => {
 
       guildId: message.guild.id,
 
-      adapterCreator: message.guild.voiceAdapterCreator,
+      adapterCreator: message.guild.voiceAdapterCreator
 
     });
+
 
 
     return message.reply(
       '✅ Joined your voice channel!'
     );
 
+
   }
+
 
 });
 
 
-console.log("VERSION 7");
+
+console.log("VERSION 8");
 
 
 client.login(process.env.TOKEN);
