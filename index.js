@@ -7,12 +7,12 @@ const {
 } = require('discord.js');
 
 const {
-  joinVoiceChannel,
-  createAudioPlayer,
-  createAudioResource
-} = require('@discordjs/voice');
+  Player
+} = require('discord-player');
 
-const { Innertube } = require('youtubei.js');
+const {
+  DefaultExtractors
+} = require('@discord-player/extractor');
 
 
 const client = new Client({
@@ -26,16 +26,43 @@ const client = new Client({
 });
 
 
+// Music player
+const player = new Player(client);
+
+(async () => {
+  await player.extractors.loadMulti(DefaultExtractors);
+})();
+
+
 client.once('clientReady', () => {
   console.log(`${client.user.tag} is online!`);
 });
 
 
+// Music events
+player.events.on('playerStart', (queue, track) => {
+
+  queue.metadata.channel.send(
+    `🎵 Now Playing: **${track.title}**`
+  );
+
+});
+
+
+player.events.on('error', (queue, error) => {
+
+  console.log("PLAYER ERROR:");
+  console.log(error);
+
+});
+
+
+
+// Commands
 client.on('messageCreate', async (message) => {
 
-  console.log("MESSAGE:", message.content);
-
   if (message.author.bot) return;
+
 
   const msg = message.content.toLowerCase().trim();
 
@@ -62,8 +89,10 @@ client.on('messageCreate', async (message) => {
 
 
 
-  // Apply Embed
+
+  // Apply
   if (msg === 'apply') {
+
 
     const embed = new EmbedBuilder()
 
@@ -73,30 +102,32 @@ client.on('messageCreate', async (message) => {
 
       .setDescription('Answer the following questions:')
 
-      .setThumbnail(
-        'https://cdn.discordapp.com/icons/1508771055551123547/5d2e04fac0200b6878b605986f56e447.webp'
-      )
-
       .addFields(
-        { name: '1. IGN', value: "What's your IGN?" },
-        { name: '2. Account', value: 'Cracked / Premium?' },
-        { name: '3. Gamemode', value: 'Pvper / Grinder?' },
-        { name: '4. Activity', value: 'How much time can you contribute towards the team?' },
-        { name: '5. Tier', value: 'Your Tier? (If Sword)' },
-        { name: '6. Community', value: 'Are you familiar with team community?' },
-        { name: '7. Previous Team', value: 'Your previous Team?' },
-        { name: '8. Why You?', value: 'Why should we accept your Team Apply? How are you better than others?' }
-      )
 
-      .setFooter({
-        text: 'Good luck with your application!'
-      })
+        {name:'1. IGN', value:"What's your IGN?"},
+
+        {name:'2. Account', value:'Cracked / Premium?'},
+
+        {name:'3. Gamemode', value:'Pvper / Grinder?'},
+
+        {name:'4. Activity', value:'How much time can you contribute?'},
+
+        {name:'5. Tier', value:'Your Tier? (If Sword)'},
+
+        {name:'6. Community', value:'Are you familiar with team community?'},
+
+        {name:'7. Previous Team', value:'Your previous Team?'},
+
+        {name:'8. Why You?', value:'Why should we accept you?'}
+
+      )
 
       .setTimestamp();
 
 
+
     return message.reply({
-      embeds: [embed]
+      embeds:[embed]
     });
 
   }
@@ -104,32 +135,37 @@ client.on('messageCreate', async (message) => {
 
 
 
+  // Play music
 
-  // Play Music
   if (msg.startsWith('!play')) {
 
 
-    const voiceChannel = message.member?.voice?.channel;
+    const voiceChannel =
+      message.member.voice.channel;
+
 
 
     if (!voiceChannel) {
+
       return message.reply(
-        '❌ Join a voice channel first.'
+        "❌ Join a voice channel first."
       );
+
     }
 
 
 
-    const song = message.content
-      .substring(5)
-      .trim();
+    const query =
+      message.content.slice(5).trim();
 
 
 
-    if (!song) {
+    if (!query) {
+
       return message.reply(
-        '❌ Enter a song name.'
+        "❌ Give a song name."
       );
+
     }
 
 
@@ -137,92 +173,45 @@ client.on('messageCreate', async (message) => {
     try {
 
 
-      const yt = await Innertube.create();
-
-
-
-      const search = await yt.search(song);
-
-
-
-      const video = search.results.find(
-        item => item.type === 'Video'
-      );
-
-
-
-      if (!video) {
-
-        return message.reply(
-          '❌ Song not found.'
-        );
-
-      }
-
-
-
-      const connection = joinVoiceChannel({
-
-        channelId: voiceChannel.id,
-
-        guildId: message.guild.id,
-
-        adapterCreator: message.guild.voiceAdapterCreator
-
-      });
-
-
-
-      const player = createAudioPlayer();
-
-
-
-      const stream = await yt.download(
-
-        video.id,
-
+      await player.play(
+        voiceChannel,
+        query,
         {
-          type: 'audio',
-          quality: 'best'
+
+          nodeOptions: {
+
+            metadata:{
+              channel: message.channel
+            },
+
+            leaveOnEnd:false,
+
+            leaveOnEmpty:true,
+
+            leaveOnEmptyCooldown:30000
+
+          }
+
         }
 
       );
 
 
-
-      const resource = createAudioResource(
-        stream
-      );
-
-
-
-      player.play(resource);
-
-
-
-      connection.subscribe(player);
-
-
-
       return message.reply(
-        `🎵 Playing: **${video.title.text}**`
+        `🔎 Searching: **${query}**`
       );
 
 
+    } catch(error) {
 
-    } catch (error) {
 
-
-      console.log("YOUTUBE ERROR:");
-
+      console.log("MUSIC ERROR:");
       console.log(error);
 
 
-
       return message.reply(
-        '❌ Music failed. Check logs.'
+        "❌ Music failed."
       );
-
 
     }
 
@@ -232,50 +221,40 @@ client.on('messageCreate', async (message) => {
 
 
 
+  // Stop
 
-  // Join VC
-  if (msg === '!join') {
-
-
-    const voiceChannel = message.member?.voice?.channel;
+  if (msg === '!stop') {
 
 
+    const queue =
+      player.nodes.get(message.guild.id);
 
-    if (!voiceChannel) {
+
+    if (!queue) {
 
       return message.reply(
-        '❌ Please join a voice channel first.'
+        "❌ Nothing playing."
       );
 
     }
 
 
-
-    joinVoiceChannel({
-
-      channelId: voiceChannel.id,
-
-      guildId: message.guild.id,
-
-      adapterCreator: message.guild.voiceAdapterCreator
-
-    });
-
+    queue.delete();
 
 
     return message.reply(
-      '✅ Joined your voice channel!'
+      "⏹️ Stopped music."
     );
 
-
   }
+
 
 
 });
 
 
 
-console.log("VERSION 8");
+console.log("VERSION 9");
 
 
 client.login(process.env.TOKEN);
