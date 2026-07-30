@@ -1,11 +1,13 @@
 require('dotenv').config();
 
 const { Client, GatewayIntentBits } = require('discord.js');
+const { joinVoiceChannel } = require('@discordjs/voice');
 
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildVoiceStates,
     GatewayIntentBits.MessageContent
   ]
 });
@@ -21,22 +23,39 @@ client.on('messageCreate', message => {
 
   // Ping
   if (msg === '!ping') {
-    message.reply('🏓 Pong!');
+    return message.reply('🏓 Pong!');
+  }
+
+  // Join VC
+  if (msg === '!join') {
+    const channel = message.member.voice.channel;
+
+    if (!channel) {
+      return message.reply('❌ First join a voice channel!');
+    }
+
+    joinVoiceChannel({
+      channelId: channel.id,
+      guildId: message.guild.id,
+      adapterCreator: message.guild.voiceAdapterCreator,
+    });
+
+    return message.reply('✅ Joined your voice channel!');
   }
 
   // Hello
   if (msg === 'hello') {
-    message.reply('Hey! 👋 Welcome!');
+    return message.reply('Hey! 👋 Welcome!');
   }
 
   // Rules
   if (msg === 'rules') {
-    message.reply('📜 Please check the rules channel!');
+    return message.reply('📜 Please check the rules channel!');
   }
 
   // Team Apply
   if (msg === 'apply') {
-    message.channel.send(`**Team Apply**
+    return message.channel.send(`**Team Apply**
 
 Answer the following questions:
 
