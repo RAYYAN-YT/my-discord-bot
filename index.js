@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-const { Client, GatewayIntentBits } = require('discord.js');
+const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const { joinVoiceChannel } = require('@discordjs/voice');
 
 const client = new Client({
@@ -34,18 +34,30 @@ client.on('messageCreate', async (message) => {
     return message.reply('📜 Please check the rules channel!');
   }
 
-  if (msg === 'apply') {
-    return message.reply(`**Team Apply**
+if (msg === 'apply') {
 
-1. What's your IGN?
-2. Cracked/Premium?
-3. Gamemode Applying For (Pvper / Grinder)?
-4. How much time can you contribute towards the team?
-5. Your Tier? (If Sword)
-6. Are you familiar with team community?
-7. Your previous Team?
-8. Why should we accept your Team Apply? How are you better than others?`);
-  }
+    const embed = new EmbedBuilder()
+      .setColor('#FFFFFF')
+      .setTitle('Team Apply')
+      .setDescription('Answer the following questions:')
+      .setThumbnail('https://cdn.discordapp.com/icons/1508771055551123547/5d2e04fac0200b6878b605986f56e447.webp')
+      .addFields(
+        { name: '1. IGN', value: "What's your IGN?" },
+        { name: '2. Account', value: 'Cracked / Premium?' },
+        { name: '3. Gamemode', value: 'Pvper / Grinder?' },
+        { name: '4. Activity', value: 'How much time can you contribute towards the team?' },
+        { name: '5. Tier', value: 'Your Tier? (If Sword)' },
+        { name: '6. Community', value: 'Are you familiar with team community?' },
+        { name: '7. Previous Team', value: 'Your previous Team?' },
+        { name: '8. Why You?', value: 'Why should we accept your Team Apply? How are you better than others?' }
+      )
+      .setFooter({
+        text: 'Good luck with your application!'
+      })
+      .setTimestamp();
+
+    return message.reply({ embeds: [embed] });
+}
 
   if (msg === '!join') {
     const voiceChannel = message.member?.voice?.channel;
