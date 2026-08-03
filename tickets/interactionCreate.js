@@ -3,7 +3,8 @@ const {
     PermissionFlagsBits,
     ActionRowBuilder,
     ButtonBuilder,
-    ButtonStyle
+    ButtonStyle,
+    EmbedBuilder
 } = require("discord.js");
 
 const config = require("./ticketConfig");
@@ -25,8 +26,8 @@ module.exports = async (interaction) => {
         });
     }
 
-    const existing = interaction.guild.channels.cache.find(c =>
-        c.name === `${type}-${interaction.user.username.toLowerCase()}`
+    const existing = interaction.guild.channels.cache.find(
+        c => c.topic === interaction.user.id
     );
 
     if (existing) {
@@ -40,6 +41,9 @@ module.exports = async (interaction) => {
         name: `${type}-${interaction.user.username}`,
         type: ChannelType.GuildText,
         parent: category,
+
+        // Save ticket owner's ID
+        topic: interaction.user.id,
 
         permissionOverwrites: [
             {
@@ -65,6 +69,26 @@ module.exports = async (interaction) => {
         ]
     });
 
+    const embed = new EmbedBuilder()
+        .setColor("#FFFFFF")
+        .setTitle("🎫 Team InVorex Support")
+        .setDescription(`
+Welcome ${interaction.user}!
+
+Thank you for creating a support ticket.
+
+**Category**
+\`${type.toUpperCase()}\`
+
+Please explain your issue in detail and wait for a staff member to respond.
+
+<:yellow_crown:1523021384622670029> A member of Team InVorex will assist you shortly.
+`)
+        .setTimestamp()
+        .setFooter({
+            text: "Team InVorex Support"
+        });
+
     const row = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
             .setCustomId("close_ticket")
@@ -75,6 +99,7 @@ module.exports = async (interaction) => {
 
     await channel.send({
         content: `${interaction.user} <@&${config.STAFF_ROLE_ID}>`,
+        embeds: [embed],
         components: [row]
     });
 
@@ -82,4 +107,5 @@ module.exports = async (interaction) => {
         content: `✅ Your ticket has been created: ${channel}`,
         ephemeral: true
     });
+
 };
