@@ -10,30 +10,25 @@ async function sendTicketPanel(channel) {
         .setColor("#FFFFFF")
         .setTitle("<:ChatGPT_Image_Jul_19_2026_0451:1529099145351139328> Team InVorex Support Center")
         .setDescription(`
-<:star:1520466761055473756> **Welcome to the Team InVorex Support Center.**
+<:star:1520466761055473756> **Welcome to the Team Invorex Support Center.**
 
 **__If you need assistance or would like to get in touch with our management team, select the appropriate ticket option below. Please choose the category that best matches your request to help us respond as quickly as possible.__**
 
-<:Notes:1508801360223670333> **Available Categories**
+<:Notes:1508801360223670333> ** Available Categories **
 
-• <:sword:1523569600489590897> **TvT**  
-Schedule or discuss Team vs Team matches.
+• **TvT** — Schedule or discuss Team vs Team matches.
 
-• <:merge:1523569600489590897> **Merge Request**  
-Request to merge your team with Team InVorex.
+• **Merge Request** — Request to merge your team with Team Invorex.
 
-• <:yellow_crown:1523021384622670029> **Team Join**  
-Apply to become a member of Team InVorex.
+• **Team Join** — Apply to become a member of Team Invorex.
 
-• 💙 **Ally Request**  
-Request a partnership or alliance with Team InVorex.
-
+• **Ally Request** — Request a partnership or alliance with Team Invorex.
 
 <:yellow_crown:1523021384622670029> **Please provide all necessary details after opening your ticket. Our staff will review your request and respond as soon as possible.**
 
-<:grinders:1523569600489590897> **Thank you for choosing Team InVorex. ❤️**
+<:grinders:1523569600489590897> **Thank you for choosing Team Invorex.**
 `)
-        .setImage("https://media.discordapp.net/attachments/1522622724466413639/1529096171791056906/2ada8202-18d5-456c-8692-f12d58146594.png?ex=6a712c08&is=6a6fda88&hm=6fe233f3c8cc876272ebe3abef090992a9f63161e87765438c055a1f54e8fe8f&=&format=webp&quality=lossless&width=1024&height=409")
+        .setImage("YOUR_IMAGE_LINK_HERE")
         .setFooter({
             text: "Team InVorex Support Center"
         });
@@ -44,37 +39,29 @@ Request a partnership or alliance with Team InVorex.
         .setPlaceholder("📩 Select a Ticket Category")
         .addOptions(
             {
+                label: "General Support",
+                description: "General questions or support",
+                value: "general"
+            },
+            {
                 label: "TvT",
-                description: "Team vs Team matches",
-                value: "tvt",
-                emoji: {
-                    id: "1523569600489590897",
-                    name: "grinders"
-                }
+                description: "Schedule or discuss Team vs Team",
+                value: "tvt"
             },
             {
                 label: "Merge Request",
-                description: "Merge your team with InVorex",
-                value: "merge",
-                emoji: {
-                    id: "1523569600489590897",
-                    name: "grinders"
-                }
+                description: "Request a team merge",
+                value: "merge"
             },
             {
                 label: "Team Join",
                 description: "Apply for Team InVorex",
-                value: "apply",
-                emoji: {
-                    id: "1523021384622670029",
-                    name: "yellow_crown"
-                }
+                value: "apply"
             },
             {
                 label: "Ally Request",
-                description: "Become an ally",
-                value: "ally",
-                emoji: "💙"
+                description: "Request an alliance",
+                value: "ally"
             }
         );
 
