@@ -41,27 +41,32 @@ async function sendTicketPanel(channel) {
             {
                 label: "General Support",
                 description: "General questions or support",
-                value: "general"
+                value: "general",
+                emoji: "<:Support:1508801265784848476>"
             },
             {
                 label: "TvT",
                 description: "Schedule or discuss Team vs Team",
-                value: "tvt"
+                value: "tvt",
+                emoji: "<:sword:1520463032189194501>"
             },
             {
                 label: "Merge Request",
                 description: "Request a team merge",
-                value: "merge"
+                value: "merge",
+                emoji: "<:Ally:1520459225782943804>"
             },
             {
                 label: "Team Join",
                 description: "Apply for Team InVorex",
-                value: "apply"
+                value: "apply",
+                emoji: "<:Notes:1508801360223670333>"
             },
             {
                 label: "Ally Request",
                 description: "Request an alliance",
-                value: "ally"
+                value: "ally",
+                emoji: "<:lead:1520464372093288558>"
             }
         );
 
