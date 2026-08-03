@@ -11,6 +11,7 @@ const { joinVoiceChannel } = require('@discordjs/voice');
 const { Player } = require('discord-player');
 const { DefaultExtractors } = require('@discord-player/extractor');
 
+
 // Ticket System
 const { sendTicketPanel } = require('./tickets/ticketCreate');
 const ticketHandler = require('./tickets/interactionCreate');
@@ -18,6 +19,7 @@ const closeHandler = require('./tickets/closeModal');
 
 
 const client = new Client({
+
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
@@ -25,6 +27,7 @@ const client = new Client({
         GatewayIntentBits.GuildMembers,
         GatewayIntentBits.MessageContent
     ]
+
 });
 
 
@@ -32,45 +35,71 @@ const player = new Player(client);
 
 
 (async () => {
+
     await player.extractors.loadMulti(DefaultExtractors);
+
 })();
 
 
+
 client.once('clientReady', () => {
+
     console.log(`${client.user.tag} is online!`);
+
 });
 
 
-// Ticket interactions
+
+// Ticket + Button Handler
+
 client.on('interactionCreate', async (interaction) => {
 
-    await ticketHandler(interaction);
+    try {
 
-    await closeHandler(interaction);
+        await ticketHandler(interaction);
+
+        await closeHandler(interaction);
+
+    } catch (error) {
+
+        console.log("INTERACTION ERROR:");
+        console.log(error);
+
+    }
 
 });
 
 
-// Music Events
+
+// Music
+
 player.events.on('playerStart', (queue, track) => {
 
     if (queue.metadata?.channel) {
+
         queue.metadata.channel.send(
             `🎵 Now Playing: **${track.title}**`
         );
+
     }
 
 });
 
 
 player.events.on('error', (queue, error) => {
+
     console.log("PLAYER ERROR:");
     console.log(error);
+
 });
 
 
+
+
 // Commands
+
 client.on('messageCreate', async (message) => {
+
 
     if (message.author.bot) return;
 
@@ -78,19 +107,29 @@ client.on('messageCreate', async (message) => {
     const msg = message.content.toLowerCase().trim();
 
 
+
     if (msg === '!ping') {
+
         return message.reply('🏓 Pong!');
+
     }
+
 
 
     if (msg === 'hello') {
+
         return message.reply('Hey! 👋 Welcome!');
+
     }
+
 
 
     if (msg === 'rules') {
+
         return message.reply('📜 Please check the rules channel!');
+
     }
+
 
 
 
@@ -111,9 +150,13 @@ client.on('messageCreate', async (message) => {
         await sendTicketPanel(message.channel);
 
 
-        return message.reply('✅ Ticket panel sent!');
+        return message.reply(
+            '✅ Ticket panel sent!'
+        );
 
     }
+
+
 
 
 
@@ -124,40 +167,69 @@ client.on('messageCreate', async (message) => {
 
         const embed = new EmbedBuilder()
 
-            .setColor('#FFFFFF')
+        .setColor('#FFFFFF')
 
-            .setTitle('Team Apply')
+        .setTitle('Team Apply')
 
-            .setDescription('Answer the following questions:')
+        .setDescription(
+            'Answer the following questions:'
+        )
 
-            .addFields(
+        .addFields(
 
-                { name: '1. IGN', value: "What's your IGN?" },
+            {
+                name:'1. IGN',
+                value:"What's your IGN?"
+            },
 
-                { name: '2. Account', value: 'Cracked / Premium?' },
+            {
+                name:'2. Account',
+                value:'Cracked / Premium?'
+            },
 
-                { name: '3. Gamemode', value: 'Pvper / Grinder?' },
+            {
+                name:'3. Gamemode',
+                value:'Pvper / Grinder?'
+            },
 
-                { name: '4. Activity', value: 'How much time can you contribute?' },
+            {
+                name:'4. Activity',
+                value:'How much time can you contribute?'
+            },
 
-                { name: '5. Tier', value: 'Your Tier? (If Sword)' },
+            {
+                name:'5. Tier',
+                value:'Your Tier? (If Sword)'
+            },
 
-                { name: '6. Community', value: 'Are you familiar with team community?' },
+            {
+                name:'6. Community',
+                value:'Are you familiar with team community?'
+            },
 
-                { name: '7. Previous Team', value: 'Your previous Team?' },
+            {
+                name:'7. Previous Team',
+                value:'Your previous Team?'
+            },
 
-                { name: '8. Why You?', value: 'Why should we accept you?' }
+            {
+                name:'8. Why You?',
+                value:'Why should we accept you?'
+            }
 
-            )
+        )
 
-            .setTimestamp();
+        .setTimestamp();
+
 
 
         return message.reply({
-            embeds: [embed]
+            embeds:[embed]
         });
 
+
     }
+
 
 
 
@@ -185,7 +257,8 @@ client.on('messageCreate', async (message) => {
 
             guildId: message.guild.id,
 
-            adapterCreator: message.guild.voiceAdapterCreator
+            adapterCreator:
+            message.guild.voiceAdapterCreator
 
         });
 
@@ -194,12 +267,14 @@ client.on('messageCreate', async (message) => {
             '✅ Joined your voice channel!'
         );
 
+
     }
 
 
 
 
-    // Play Music
+
+    // Play
 
     if (msg.startsWith('!play')) {
 
@@ -216,7 +291,10 @@ client.on('messageCreate', async (message) => {
         }
 
 
-        const query = message.content.slice(5).trim();
+
+        const query =
+        message.content.slice(5).trim();
+
 
 
         if (!query) {
@@ -239,15 +317,15 @@ client.on('messageCreate', async (message) => {
 
                     nodeOptions: {
 
-                        metadata: {
-                            channel: message.channel
+                        metadata:{
+                            channel:message.channel
                         },
 
-                        leaveOnEnd: false,
+                        leaveOnEnd:false,
 
-                        leaveOnEmpty: true,
+                        leaveOnEmpty:true,
 
-                        leaveOnEmptyCooldown: 30000
+                        leaveOnEmptyCooldown:30000
 
                     }
 
@@ -255,15 +333,17 @@ client.on('messageCreate', async (message) => {
             );
 
 
+
             return message.reply(
                 `🔎 Searching: **${query}**`
             );
 
 
-        } catch (err) {
+
+        } catch(error) {
 
 
-            console.log(err);
+            console.log(error);
 
 
             return message.reply(
@@ -273,7 +353,9 @@ client.on('messageCreate', async (message) => {
 
         }
 
+
     }
+
 
 
 
@@ -283,9 +365,9 @@ client.on('messageCreate', async (message) => {
     if (msg === '!stop') {
 
 
-        const queue = player.nodes.get(
-            message.guild.id
-        );
+        const queue =
+        player.nodes.get(message.guild.id);
+
 
 
         if (!queue) {
@@ -304,6 +386,7 @@ client.on('messageCreate', async (message) => {
             '⏹️ Stopped music.'
         );
 
+
     }
 
 
@@ -311,7 +394,7 @@ client.on('messageCreate', async (message) => {
 
 
 
-console.log("VERSION 12");
+console.log("VERSION 13");
 
 
 client.login(process.env.TOKEN);
