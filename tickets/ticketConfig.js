@@ -1,4 +1,5 @@
 module.exports = {
+
   STAFF_ROLE_ID: "1523290224137076878",
 
   CATEGORIES: {
@@ -8,4 +9,5 @@ module.exports = {
     apply: "1529476635664060640",
     ally: "1529489462151872552"
   }
+
 };
