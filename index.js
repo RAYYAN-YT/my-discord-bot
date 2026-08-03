@@ -48,12 +48,20 @@ client.on('interactionCreate', async (interaction) => {
 
     try {
 
+        // Dropdown ticket create
         if (interaction.isStringSelectMenu()) {
             await ticketHandler(interaction);
         }
 
 
+        // Close button
         if (interaction.isButton()) {
+            await closeHandler(interaction);
+        }
+
+
+        // Modal submit
+        if (interaction.isModalSubmit()) {
             await closeHandler(interaction);
         }
 

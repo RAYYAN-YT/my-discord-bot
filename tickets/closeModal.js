@@ -5,42 +5,45 @@ const {
     ModalBuilder,
     TextInputBuilder,
     TextInputStyle,
-    EmbedBuilder,
-    PermissionFlagsBits
+    EmbedBuilder
 } = require("discord.js");
 
 
 module.exports = async (interaction) => {
 
 
-    // CLOSE BUTTON
-    if (interaction.isButton() && interaction.customId === "close_ticket") {
+    // Open close reason modal
+    if (
+        interaction.isButton() &&
+        interaction.customId === "close_ticket"
+    ) {
 
 
         const modal = new ModalBuilder()
 
             .setCustomId("close_reason_modal")
 
-            .setTitle("Close Ticket Reason");
+            .setTitle("Close Ticket");
 
 
 
-        const reason = new TextInputBuilder()
+        const reasonInput = new TextInputBuilder()
 
-            .setCustomId("reason")
+            .setCustomId("close_reason")
 
-            .setLabel("Why are you closing this ticket?")
+            .setLabel("Reason for closing ticket")
+
+            .setPlaceholder("Enter reason...")
 
             .setStyle(TextInputStyle.Paragraph)
-
-            .setPlaceholder("Enter closing reason...")
 
             .setRequired(true);
 
 
 
         const row = new ActionRowBuilder()
-            .addComponents(reason);
+
+            .addComponents(reasonInput);
 
 
 
@@ -56,21 +59,16 @@ module.exports = async (interaction) => {
 
 
 
-    // MODAL SUBMIT
-    if (interaction.isModalSubmit() && interaction.customId === "close_reason_modal") {
+    // Modal submit
+    if (
+        interaction.isModalSubmit() &&
+        interaction.customId === "close_reason_modal"
+    ) {
+
 
 
         const reason =
-            interaction.fields.getTextInputValue("reason");
-
-
-
-        await interaction.channel.permissionOverwrites.edit(
-            interaction.channel.guild.roles.everyone,
-            {
-                ViewChannel: false
-            }
-        );
+            interaction.fields.getTextInputValue("close_reason");
 
 
 
@@ -128,6 +126,12 @@ ${reason}
 
 
 
+        await interaction.reply({
+            content: "✅ Ticket closed.",
+            ephemeral: true
+        });
+
+
 
         await interaction.channel.send({
 
@@ -139,13 +143,19 @@ ${reason}
 
 
 
-        return interaction.reply({
+    }
 
-            content:"✅ Ticket closed.",
 
-            ephemeral:true
 
-        });
+
+
+    // Delete
+    if (
+        interaction.isButton() &&
+        interaction.customId === "delete_ticket"
+    ) {
+
+        await interaction.channel.delete();
 
     }
 
@@ -153,37 +163,11 @@ ${reason}
 
 
 
-    // DELETE TICKET
-    if (interaction.isButton() && interaction.customId === "delete_ticket") {
-
-
-        return interaction.channel.delete();
-
-
-    }
-
-
-
-
-
-
-
-    // REOPEN TICKET
-    if (interaction.isButton() && interaction.customId === "reopen_ticket") {
-
-
-        await interaction.channel.permissionOverwrites.edit(
-
-            interaction.channel.guild.roles.everyone,
-
-            {
-
-                ViewChannel:false
-
-            }
-
-        );
-
+    // Reopen
+    if (
+        interaction.isButton() &&
+        interaction.customId === "reopen_ticket"
+    ) {
 
 
         await interaction.reply({
@@ -195,7 +179,6 @@ ${reason}
         });
 
 
-
         const embed = new EmbedBuilder()
 
             .setColor("#00FF00")
@@ -203,13 +186,8 @@ ${reason}
             .setTitle("🔓 Ticket Reopened")
 
             .setDescription(
-`
-This ticket has been reopened by ${interaction.user}.
-
-Staff can continue helping here.
-`
+                `Ticket reopened by ${interaction.user}`
             );
-
 
 
         return interaction.channel.send({
