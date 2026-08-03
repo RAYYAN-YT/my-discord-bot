@@ -21,7 +21,6 @@ const {
 // Ticket System
 const { sendTicketPanel } = require('./tickets/ticketCreate');
 const interactionHandler = require('./tickets/interactionCreate');
-const closeModal = require('./tickets/closeModal');
 
 const client = new Client({
   intents: [
@@ -44,7 +43,6 @@ client.once('clientReady', () => {
 });
 
 // Ticket Events
-closeModal(client);
 client.on('interactionCreate', interactionHandler);
 
 player.events.on('playerStart', (queue, track) => {
@@ -60,8 +58,6 @@ client.on('messageCreate', async (message) => {
 
   if (message.author.bot) return;
 
-  console.log("MESSAGE:", message.content);
-
   const msg = message.content.toLowerCase().trim();
 
   // Ping
@@ -74,7 +70,7 @@ client.on('messageCreate', async (message) => {
     return message.reply('Hey! 👋 Welcome!');
   }
 
-  // Ticket Panel (Admin Only)
+  // Send Ticket Panel
   if (msg === '!ticketpanel') {
 
     if (!message.member.permissions.has('Administrator')) {
@@ -86,7 +82,7 @@ client.on('messageCreate', async (message) => {
     return message.reply('✅ Ticket panel sent!');
   }
 
-  // Apply
+  // Apply Auto Response
   if (msg === 'apply') {
 
     const embed = new EmbedBuilder()
@@ -105,9 +101,7 @@ client.on('messageCreate', async (message) => {
       )
       .setTimestamp();
 
-    return message.reply({
-      embeds: [embed]
-    });
+    return message.reply({ embeds: [embed] });
   }
 
   // Join Voice
@@ -160,7 +154,6 @@ client.on('messageCreate', async (message) => {
 
     } catch (error) {
 
-      console.log("MUSIC ERROR:");
       console.log(error);
 
       return message.reply('❌ Music failed.');
