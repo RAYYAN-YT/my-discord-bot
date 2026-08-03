@@ -18,6 +18,11 @@ const {
   DefaultExtractors
 } = require('@discord-player/extractor');
 
+// Ticket System
+const { sendTicketPanel } = require('./tickets/ticketCreate');
+const interactionHandler = require('./tickets/interactionCreate');
+const closeModal = require('./tickets/closeModal');
+
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -37,6 +42,10 @@ const player = new Player(client);
 client.once('clientReady', () => {
   console.log(`${client.user.tag} is online!`);
 });
+
+// Ticket Events
+closeModal(client);
+client.on('interactionCreate', interactionHandler);
 
 player.events.on('playerStart', (queue, track) => {
   queue.metadata.channel.send(`🎵 Now Playing: **${track.title}**`);
@@ -65,9 +74,16 @@ client.on('messageCreate', async (message) => {
     return message.reply('Hey! 👋 Welcome!');
   }
 
-  // Rules
-  if (msg === 'rules') {
-    return message.reply('📜 Please check the rules channel!');
+  // Ticket Panel (Admin Only)
+  if (msg === '!ticketpanel') {
+
+    if (!message.member.permissions.has('Administrator')) {
+      return message.reply('❌ Admin only.');
+    }
+
+    await sendTicketPanel(message.channel);
+
+    return message.reply('✅ Ticket panel sent!');
   }
 
   // Apply
@@ -89,10 +105,12 @@ client.on('messageCreate', async (message) => {
       )
       .setTimestamp();
 
-    return message.reply({ embeds: [embed] });
+    return message.reply({
+      embeds: [embed]
+    });
   }
 
-  // Join Voice Channel
+  // Join Voice
   if (msg === '!join') {
 
     const voiceChannel = message.member?.voice?.channel;
@@ -151,7 +169,7 @@ client.on('messageCreate', async (message) => {
 
   }
 
-  // Stop
+  // Stop Music
   if (msg === '!stop') {
 
     const queue = player.nodes.get(message.guild.id);
@@ -167,6 +185,6 @@ client.on('messageCreate', async (message) => {
 
 });
 
-console.log("VERSION 10");
+console.log("VERSION 11");
 
 client.login(process.env.TOKEN);
