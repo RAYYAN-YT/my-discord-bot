@@ -1,202 +1,112 @@
 const {
-    ChannelType,
-    PermissionFlagsBits,
     ActionRowBuilder,
-    ButtonBuilder,
-    ButtonStyle,
+    StringSelectMenuBuilder,
     EmbedBuilder
 } = require("discord.js");
 
-const config = require("./ticketConfig");
 
-
-module.exports = async (interaction) => {
-
-
-    if (!interaction.isStringSelectMenu()) return;
-
-
-    if (interaction.customId !== "ticket_menu") return;
-
-
-
-    const type = interaction.values[0];
-
-
-    const category = config.CATEGORIES[type];
-
-
-
-    if (!category) {
-
-        return interaction.reply({
-            content: "❌ Invalid ticket category.",
-            ephemeral: true
-        });
-
-    }
-
-
-
-    const existing = interaction.guild.channels.cache.find(
-        c => c.name === `${type}-${interaction.user.username.toLowerCase()}`
-    );
-
-
-
-    if (existing) {
-
-        return interaction.reply({
-            content: `❌ You already have a ticket: ${existing}`,
-            ephemeral: true
-        });
-
-    }
-
-
-
-
-    const channel = await interaction.guild.channels.create({
-
-        name: `${type}-${interaction.user.username}`,
-
-        type: ChannelType.GuildText,
-
-        parent: category,
-
-
-        permissionOverwrites: [
-
-            {
-                id: interaction.guild.roles.everyone,
-
-                deny: [
-                    PermissionFlagsBits.ViewChannel
-                ]
-            },
-
-
-            {
-                id: interaction.user.id,
-
-                allow: [
-
-                    PermissionFlagsBits.ViewChannel,
-
-                    PermissionFlagsBits.SendMessages,
-
-                    PermissionFlagsBits.ReadMessageHistory
-
-                ]
-
-            },
-
-
-            {
-                id: config.STAFF_ROLE_ID,
-
-                allow: [
-
-                    PermissionFlagsBits.ViewChannel,
-
-                    PermissionFlagsBits.SendMessages,
-
-                    PermissionFlagsBits.ReadMessageHistory
-
-                ]
-
-            }
-
-        ]
-
-    });
-
-
-
+async function sendTicketPanel(channel) {
 
 
     const embed = new EmbedBuilder()
 
         .setColor("#FFFFFF")
 
-        .setTitle("🎫 Team InVorex Ticket")
+        .setTitle("<:ChatGPT_Image_Jul_19_2026_0451:1529099145351139328> Team InVorex Support Center")
 
-        .setDescription(
-`
-Welcome ${interaction.user} 👋
+        .setDescription(`
+<:star:1520466761055473756> **Welcome to the Team Invorex Support Center.**
 
-Thank you for contacting **Team InVorex Support Center**.
+**__If you need assistance or would like to get in touch with our management team, select the appropriate ticket option below. Please choose the category that best matches your request to help us respond as quickly as possible.__**
 
-A staff member will respond to your ticket shortly.
+<:Notes:1508801360223670333> **Available Categories**
 
-**Ticket Details**
+• **TvT** — Schedule or discuss Team vs Team matches.
 
-📌 Category:
-\`${type}\`
+• **Merge Request** — Request to merge your team with Team Invorex.
 
-📝 Please provide all required information.
+• **Team Join** — Apply to become a member of Team Invorex.
 
-<:yellow_crown:1523021384622670029> Please be patient while our staff reviews your request.
+• **Ally Request** — Request a partnership or alliance with Team Invorex.
 
-**Team InVorex ❤️**
-`
-        )
+<:yellow_crown:1523021384622670029> **Please provide all necessary details after opening your ticket. Our staff will review your request and respond as soon as possible.**
 
-        .setTimestamp()
+<:grinders:1523569600489590897> **Thank you for choosing Team Invorex.**
+`)
+
+        .setImage("https://media.discordapp.net/attachments/1522622724466413639/1529096171791056906/2ada8202-18d5-456c-8692-f12d58146594.png")
 
         .setFooter({
-            text: "Team InVorex Support"
+            text: "Team InVorex Support Center"
         });
 
 
 
+    const menu = new StringSelectMenuBuilder()
 
+        .setCustomId("ticket_menu")
 
+        .setPlaceholder("📩 Select a Ticket Category")
 
-    const buttons = new ActionRowBuilder()
+        .addOptions(
 
-        .addComponents(
+            {
+                label: "General Support",
+                description: "General questions or support",
+                value: "general",
+                emoji: "<:Support:1508801265784848476>"
+            },
 
-            new ButtonBuilder()
+            {
+                label: "TvT",
+                description: "Schedule or discuss Team vs Team",
+                value: "tvt",
+                emoji: "<:sword:1520463032189194501>"
+            },
 
-                .setCustomId("close_ticket")
+            {
+                label: "Merge Request",
+                description: "Request a team merge",
+                value: "merge",
+                emoji: "<:Ally:1520459225782943804>"
+            },
 
-                .setLabel("Close Ticket")
+            {
+                label: "Team Join",
+                description: "Apply for Team InVorex",
+                value: "apply",
+                emoji: "<:Notes:1508801360223670333>"
+            },
 
-                .setEmoji("🔒")
-
-                .setStyle(ButtonStyle.Danger)
+            {
+                label: "Ally Request",
+                description: "Request an alliance",
+                value: "ally",
+                emoji: "<:lead:1520464372093288558>"
+            }
 
         );
 
 
 
+    const row = new ActionRowBuilder()
+        .addComponents(menu);
 
 
 
     await channel.send({
 
-        content: `${interaction.user} <@&${config.STAFF_ROLE_ID}>`,
-
         embeds: [embed],
 
-        components: [buttons]
+        components: [row]
 
     });
 
 
+}
 
 
 
-
-    await interaction.reply({
-
-        content: `✅ Your ticket has been created: ${channel}`,
-
-        ephemeral: true
-
-    });
-
-
-
+module.exports = {
+    sendTicketPanel
 };
