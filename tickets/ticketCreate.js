@@ -31,7 +31,7 @@ Please provide all necessary details after opening your ticket.
 
 Thank you for choosing **Team InVorex ❤️**`)
         // Replace this with your banner image URL if you want
-        .setImage("https://YOUR_IMAGE_LINK_HERE")
+        .setImage("https://media.discordapp.net/attachments/1522622724466413639/1529096171791056906/2ada8202-18d5-456c-8692-f12d58146594.png?ex=6a712c08&is=6a6fda88&hm=6fe233f3c8cc876272ebe3abef090992a9f63161e87765438c055a1f54e8fe8f&=&format=webp&quality=lossless&width=1024&height=409")
         .setFooter({
             text: "Team InVorex Support Center"
         });
