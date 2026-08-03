@@ -12,14 +12,13 @@ const { Player } = require('discord-player');
 const { DefaultExtractors } = require('@discord-player/extractor');
 
 
-// Ticket System
+// Tickets
 const { sendTicketPanel } = require('./tickets/ticketCreate');
 const ticketHandler = require('./tickets/interactionCreate');
 const closeHandler = require('./tickets/closeModal');
 
 
 const client = new Client({
-
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
@@ -27,7 +26,6 @@ const client = new Client({
         GatewayIntentBits.GuildMembers,
         GatewayIntentBits.MessageContent
     ]
-
 });
 
 
@@ -35,35 +33,35 @@ const player = new Player(client);
 
 
 (async () => {
-
     await player.extractors.loadMulti(DefaultExtractors);
-
 })();
 
 
-
-client.once('clientReady', () => {
-
-    console.log(`${client.user.tag} is online!`);
-
+client.once('ready', () => {
+    console.log(`${client.user.tag} is online`);
 });
 
 
-
-// Ticket + Button Handler
+// Ticket buttons + menu
 
 client.on('interactionCreate', async (interaction) => {
 
     try {
 
-        await ticketHandler(interaction);
+        if (interaction.isStringSelectMenu()) {
+            await ticketHandler(interaction);
+        }
 
-        await closeHandler(interaction);
 
-    } catch (error) {
+        if (interaction.isButton()) {
+            await closeHandler(interaction);
+        }
 
-        console.log("INTERACTION ERROR:");
-        console.log(error);
+
+    } catch (err) {
+
+        console.log("TICKET ERROR:");
+        console.log(err);
 
     }
 
@@ -75,7 +73,7 @@ client.on('interactionCreate', async (interaction) => {
 
 player.events.on('playerStart', (queue, track) => {
 
-    if (queue.metadata?.channel) {
+    if(queue.metadata?.channel){
 
         queue.metadata.channel.send(
             `🎵 Now Playing: **${track.title}**`
@@ -86,9 +84,9 @@ player.events.on('playerStart', (queue, track) => {
 });
 
 
-player.events.on('error', (queue, error) => {
+player.events.on('error',(queue,error)=>{
 
-    console.log("PLAYER ERROR:");
+    console.log("PLAYER ERROR");
     console.log(error);
 
 });
@@ -98,36 +96,24 @@ player.events.on('error', (queue, error) => {
 
 // Commands
 
-client.on('messageCreate', async (message) => {
+client.on('messageCreate', async message => {
 
 
-    if (message.author.bot) return;
+    if(message.author.bot) return;
 
 
     const msg = message.content.toLowerCase().trim();
 
 
 
-    if (msg === '!ping') {
-
-        return message.reply('🏓 Pong!');
-
+    if(msg === '!ping'){
+        return message.reply("🏓 Pong!");
     }
 
 
 
-    if (msg === 'hello') {
-
-        return message.reply('Hey! 👋 Welcome!');
-
-    }
-
-
-
-    if (msg === 'rules') {
-
-        return message.reply('📜 Please check the rules channel!');
-
+    if(msg === 'hello'){
+        return message.reply("Hey 👋");
     }
 
 
@@ -135,24 +121,48 @@ client.on('messageCreate', async (message) => {
 
     // Ticket Panel
 
-    if (msg === '!ticketpanel') {
+    if(msg === '!ticketpanel') {
 
 
-        if (!message.member.permissions.has(
+        console.log("TICKET COMMAND RECEIVED");
+
+
+        if(!message.member.permissions.has(
             PermissionsBitField.Flags.Administrator
-        )) {
+        )){
 
-            return message.reply('❌ Admin only.');
+            return message.reply("❌ Admin only");
 
         }
 
 
-        await sendTicketPanel(message.channel);
+        try {
 
 
-        return message.reply(
-            '✅ Ticket panel sent!'
-        );
+            await sendTicketPanel(message.channel);
+
+
+            console.log("PANEL SENT");
+
+
+            return message.reply(
+                "✅ Ticket panel sent"
+            );
+
+
+        } catch(error){
+
+
+            console.log("PANEL ERROR:");
+            console.log(error);
+
+
+            return message.reply(
+                "❌ Ticket panel failed"
+            );
+
+
+        }
 
     }
 
@@ -162,71 +172,42 @@ client.on('messageCreate', async (message) => {
 
     // Apply
 
-    if (msg === 'apply') {
+    if(msg === 'apply'){
 
 
         const embed = new EmbedBuilder()
 
-        .setColor('#FFFFFF')
+        .setColor("#FFFFFF")
 
-        .setTitle('Team Apply')
+        .setTitle("Team Apply")
 
         .setDescription(
-            'Answer the following questions:'
+            "Answer the following questions:"
         )
 
         .addFields(
-
             {
-                name:'1. IGN',
-                value:"What's your IGN?"
+                name:"IGN",
+                value:"Your IGN?"
             },
-
             {
-                name:'2. Account',
-                value:'Cracked / Premium?'
+                name:"Account",
+                value:"Cracked / Premium?"
             },
-
             {
-                name:'3. Gamemode',
-                value:'Pvper / Grinder?'
+                name:"Gamemode",
+                value:"Pvper / Grinder?"
             },
-
             {
-                name:'4. Activity',
-                value:'How much time can you contribute?'
-            },
-
-            {
-                name:'5. Tier',
-                value:'Your Tier? (If Sword)'
-            },
-
-            {
-                name:'6. Community',
-                value:'Are you familiar with team community?'
-            },
-
-            {
-                name:'7. Previous Team',
-                value:'Your previous Team?'
-            },
-
-            {
-                name:'8. Why You?',
-                value:'Why should we accept you?'
+                name:"Activity",
+                value:"How much time?"
             }
-
-        )
-
-        .setTimestamp();
-
+        );
 
 
         return message.reply({
             embeds:[embed]
         });
-
 
     }
 
@@ -236,26 +217,23 @@ client.on('messageCreate', async (message) => {
 
     // Join VC
 
-    if (msg === '!join') {
+    if(msg === '!join'){
 
 
-        const voiceChannel = message.member?.voice?.channel;
+        const vc = message.member.voice.channel;
 
 
-        if (!voiceChannel) {
-
+        if(!vc)
             return message.reply(
-                '❌ Please join a voice channel first.'
+                "❌ Join voice first"
             );
-
-        }
 
 
         joinVoiceChannel({
 
-            channelId: voiceChannel.id,
+            channelId:vc.id,
 
-            guildId: message.guild.id,
+            guildId:message.guild.id,
 
             adapterCreator:
             message.guild.voiceAdapterCreator
@@ -264,9 +242,8 @@ client.on('messageCreate', async (message) => {
 
 
         return message.reply(
-            '✅ Joined your voice channel!'
+            "✅ Joined"
         );
-
 
     }
 
@@ -276,80 +253,57 @@ client.on('messageCreate', async (message) => {
 
     // Play
 
-    if (msg.startsWith('!play')) {
+    if(msg.startsWith("!play")){
 
 
-        const voiceChannel = message.member?.voice?.channel;
+        const vc = message.member.voice.channel;
 
 
-        if (!voiceChannel) {
-
+        if(!vc)
             return message.reply(
-                '❌ Join a voice channel first.'
+                "❌ Join VC first"
             );
 
-        }
 
-
-
-        const query =
+        const song =
         message.content.slice(5).trim();
 
 
 
-        if (!query) {
-
+        if(!song)
             return message.reply(
-                '❌ Enter a song name.'
+                "❌ Enter song"
             );
 
-        }
 
 
+        try{
 
-        try {
 
-
-            await player.play(
-                voiceChannel,
-                query,
-                {
-
-                    nodeOptions: {
-
-                        metadata:{
-                            channel:message.channel
-                        },
-
-                        leaveOnEnd:false,
-
-                        leaveOnEmpty:true,
-
-                        leaveOnEmptyCooldown:30000
-
-                    }
-
+            await player.play(vc,song,{
+                nodeOptions:{
+                    metadata:{
+                        channel:message.channel
+                    },
+                    leaveOnEnd:false,
+                    leaveOnEmpty:true,
+                    leaveOnEmptyCooldown:30000
                 }
-            );
-
-
-
-            return message.reply(
-                `🔎 Searching: **${query}**`
-            );
-
-
-
-        } catch(error) {
-
-
-            console.log(error);
+            });
 
 
             return message.reply(
-                '❌ Music failed.'
+                `🔎 Searching ${song}`
             );
 
+
+        }catch(err){
+
+            console.log(err);
+
+            return message.reply(
+                "❌ Music error"
+            );
 
         }
 
@@ -360,32 +314,24 @@ client.on('messageCreate', async (message) => {
 
 
 
-    // Stop
-
-    if (msg === '!stop') {
-
+    if(msg === '!stop'){
 
         const queue =
         player.nodes.get(message.guild.id);
 
 
-
-        if (!queue) {
-
+        if(!queue)
             return message.reply(
-                '❌ Nothing playing.'
+                "❌ Nothing playing"
             );
-
-        }
 
 
         queue.delete();
 
 
         return message.reply(
-            '⏹️ Stopped music.'
+            "⏹️ Stopped"
         );
-
 
     }
 
@@ -394,7 +340,7 @@ client.on('messageCreate', async (message) => {
 
 
 
-console.log("VERSION 13");
+console.log("VERSION 14");
 
 
 client.login(process.env.TOKEN);
