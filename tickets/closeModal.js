@@ -8,6 +8,8 @@ const {
     EmbedBuilder
 } = require("discord.js");
 
+const config = require("./ticketConfig");
+
 module.exports = async (interaction) => {
 
     // Open Close Modal
@@ -123,14 +125,48 @@ ${reason}
 
 
     // Delete Ticket
-    if (
-        interaction.isButton() &&
-        interaction.customId === "delete_ticket"
-    ) {
+if (
+    interaction.isButton() &&
+    interaction.customId === "delete_ticket"
+) {
 
-        return interaction.channel.delete();
+    const logChannel = interaction.guild.channels.cache.get(config.LOG_CHANNEL_ID);
+
+    if (logChannel) {
+
+        const logEmbed = new EmbedBuilder()
+            .setColor("#FF0000")
+            .setTitle("🗑️ Ticket Deleted")
+            .addFields(
+                {
+                    name: "📁 Ticket",
+                    value: interaction.channel.name,
+                    inline: true
+                },
+                {
+                    name: "👮 Deleted By",
+                    value: `${interaction.user}`,
+                    inline: true
+                },
+                {
+                    name: "👤 Ticket Owner",
+                    value: interaction.channel.topic
+                        ? `<@${interaction.channel.topic}>`
+                        : "Unknown",
+                    inline: false
+                }
+            )
+            .setTimestamp();
+
+        await logChannel.send({
+            embeds: [logEmbed]
+        });
 
     }
+
+    return interaction.channel.delete();
+
+}
 
 
     // Reopen Ticket
