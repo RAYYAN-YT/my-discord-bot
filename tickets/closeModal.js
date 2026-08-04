@@ -10,6 +10,8 @@ const {
 
 const config = require("./ticketConfig");
 
+const transcript = require("discord-html-transcripts");
+
 module.exports = async (interaction) => {
 
     // Open Close Modal
@@ -124,13 +126,43 @@ ${reason}
     }
 
 
-    // Delete Ticket
+// Delete Ticket
 if (
     interaction.isButton() &&
     interaction.customId === "delete_ticket"
 ) {
 
-    const logChannel = interaction.guild.channels.cache.get(config.LOG_CHANNEL_ID);
+    await interaction.reply({
+        content: "📄 Creating transcript...",
+        ephemeral: true
+    });
+
+
+    let attachment;
+
+try {
+
+    attachment = await transcript.createTranscript(
+        interaction.channel,
+        {
+            limit: -1,
+            returnType: "attachment",
+            filename: `${interaction.channel.name}.html`,
+            saveImages: true
+        }
+    );
+
+} catch (err) {
+
+    console.log("Transcript Error:", err);
+
+}
+
+
+    const logChannel = interaction.guild.channels.cache.get(
+        config.LOG_CHANNEL_ID
+    );
+
 
     if (logChannel) {
 
@@ -158,16 +190,18 @@ if (
             )
             .setTimestamp();
 
+
         await logChannel.send({
-            embeds: [logEmbed]
-        });
+    embeds: [logEmbed],
+    files: attachment ? [attachment] : []
+});
 
     }
 
-    return interaction.channel.delete();
+
+    await interaction.channel.delete();
 
 }
-
 
     // Reopen Ticket
     if (
