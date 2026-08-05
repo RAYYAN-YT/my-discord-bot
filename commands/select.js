@@ -55,10 +55,7 @@ Your performance during the testing process demonstrated the skills and commitme
 
 Welcome to **Team InVorex!** ❤️`
             })
-            .setThumbnail(user.displayAvatarURL({
-                dynamic: true,
-                size: 1024
-            }))
+            .setThumbnail("https://mc-heads.net/avatar/Steve/256")
             .setFooter({
                 text: "Team InVorex"
             })
