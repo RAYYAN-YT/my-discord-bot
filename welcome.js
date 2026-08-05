@@ -40,11 +40,7 @@ module.exports = (client) => {
 <:Notes:1508801360223670333> **__Member Count__** #${member.guild.memberCount}
             `)
 
-            .setImage(
-                member.guild.bannerURL({
-                    size: 1024
-                })
-            )
+ .setImage("https://media.discordapp.net/attachments/1522622724466413639/1529096171791056906/2ada8202-18d5-456c-8692-f12d58146594.png?ex=6a727d88&is=6a712c08&hm=6f684799144065154d1ea472e725f4c9c4d21293e9c198da407546699e2f0cd6&=&format=webp&quality=lossless&width=1024&height=410")
 
             .setFooter({
                 text: "InVorex Manager",

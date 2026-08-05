@@ -50,17 +50,20 @@ client.on('interactionCreate', async (interaction) => {
 
     try {
 
-        // Slash Command
-        if (interaction.isChatInputCommand()) {
+        // Slash Commands
+if (interaction.isChatInputCommand()) {
 
-            if (interaction.commandName === "warassemble") {
+    if (interaction.commandName === "warassemble") {
+        const command = require("./commands/warassemble");
+        return command.execute(interaction);
+    }
 
-                const command = require("./commands/warassemble");
-                return command.execute(interaction);
+    if (interaction.commandName === "dmall") {
+        const command = require("./commands/dmall");
+        return command.execute(interaction);
+    }
 
-            }
-
-        }
+}
 
         // Ticket Dropdown
         if (interaction.isStringSelectMenu()) {
