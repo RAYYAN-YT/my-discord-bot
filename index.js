@@ -63,6 +63,27 @@ if (interaction.isChatInputCommand()) {
         return command.execute(interaction);
     }
 
+    if (interaction.commandName === "select") {
+
+    console.log("SELECT COMMAND RECEIVED");
+
+    try {
+        const command = require("./commands/select");
+        await command.execute(interaction);
+    } catch (err) {
+        console.error("SELECT FAILED:");
+        console.error(err);
+
+        if (!interaction.replied && !interaction.deferred) {
+            await interaction.reply({
+                content: "❌ " + err.message,
+                ephemeral: true
+            });
+        }
+    }
+
+    return;
+}
 }
 
         // Ticket Dropdown

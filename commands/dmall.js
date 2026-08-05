@@ -17,13 +17,6 @@ module.exports = {
                 .setRequired(true)
         )
 
-        .addChannelOption(option =>
-            option
-                .setName("channel")
-                .setDescription("Optional channel to mention")
-                .setRequired(false)
-        )
-
         .addStringOption(option =>
             option
                 .setName("title")
@@ -38,6 +31,13 @@ module.exports = {
                 .setRequired(true)
         )
 
+        .addChannelOption(option =>
+            option
+                .setName("channel")
+                .setDescription("Optional channel to mention")
+                .setRequired(false)
+        )
+
         .setDefaultMemberPermissions(
             PermissionFlagsBits.Administrator
         ),
@@ -45,12 +45,12 @@ module.exports = {
     async execute(interaction) {
 
         const role = interaction.options.getRole("role");
-        const channel = interaction.options.getChannel("channel");
         const title = interaction.options.getString("title");
         const message = interaction.options.getString("message");
+        const channel = interaction.options.getChannel("channel");
 
         await interaction.reply({
-            content: "📨 Sending DMs... Please wait.",
+            content: "📨 Sending DMs... Please wait...",
             ephemeral: true
         });
 
@@ -70,25 +70,22 @@ module.exports = {
                     .setColor("#FFFFFF")
                     .setTitle(title)
                     .setDescription(message)
-                    .addFields(
-                        channel
-                            ? {
-                                  name: "📢 Related Channel",
-                                  value: `${channel}`,
-                                  inline: false
-                              }
-                            : {
-                                  name: "\u200B",
-                                  value: "\u200B",
-                                  inline: false
-                              }
+                    .setThumbnail(
+                        interaction.guild.iconURL({ dynamic: true })
                     )
-                    .setThumbnail(interaction.guild.iconURL({ dynamic: true }))
                     .setFooter({
                         text: interaction.guild.name,
                         iconURL: interaction.guild.iconURL({ dynamic: true })
                     })
                     .setTimestamp();
+
+                if (channel) {
+                    embed.addFields({
+                        name: "📢 Related Channel",
+                        value: `${channel}`,
+                        inline: false
+                    });
+                }
 
                 await member.send({
                     embeds: [embed]
